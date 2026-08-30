@@ -1402,7 +1402,7 @@ export function ProfileEditor() {
                 <div className="h-px bg-border" />
                 <CustomDomainPanel />
                 <div className="h-px bg-border" />
-                <VerifiedBadgeCard handle={handle || null} />
+                <VerifiedBadgeCard verified={verified} handle={handle || null} />
               </section>
 
               <SocialSharingCard
