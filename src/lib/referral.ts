@@ -27,9 +27,17 @@ function readCookie(name: string): string | null {
   return match?.[1] ? decodeURIComponent(match[1]) : null;
 }
 
+/**
+ * Normaliseert een `ref`-code naar de databasehandle: `u_jona` (gratis lid) en
+ * `jona` (Pro) verwijzen naar dezelfde inviter.
+ */
+export function normalizeReferralCode(raw: string): string {
+  return raw.replace(/^@/, "").replace(/^u_/i, "").trim().toLowerCase();
+}
+
 /** Remember the inviter. First tag wins, so an inviter is never overwritten. */
 export function storeReferrer(username: string): void {
-  const handle = username.replace(/^@/, "").toLowerCase();
+  const handle = normalizeReferralCode(username);
   if (!handle) return;
   if (readReferrer()) return;
   try {
@@ -43,23 +51,45 @@ export function storeReferrer(username: string): void {
   }
 }
 
+/**
+ * Leest `?ref=` van de huidige URL en bewaart de code 30 dagen. Wordt op
+ * `/`, `/signup` en de referral-landingspagina aangeroepen.
+ */
+export function captureReferralFromUrl(search?: string): string | null {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(search ?? window.location.search);
+  const ref = params.get("ref");
+  if (!ref) return null;
+  const handle = normalizeReferralCode(ref);
+  if (!handle) return null;
+  storeReferrer(handle);
+  return handle;
+}
+
 export function readReferrer(): string | null {
-  try {
-    const stored = window.localStorage.getItem(REFERRAL_KEY);
-    if (stored) return stored;
-  } catch {
-    /* fall through to the cookie */
+  for (const key of [REFERRAL_KEY, LEGACY_REFERRAL_KEY]) {
+    try {
+      const stored = window.localStorage.getItem(key);
+      if (stored) return stored;
+    } catch {
+      /* fall through to the cookie */
+    }
+    const cookie = readCookie(key);
+    if (cookie) return cookie;
   }
-  return readCookie(REFERRAL_KEY);
+  return null;
 }
 
 export function clearReferrer(): void {
-  try {
-    window.localStorage.removeItem(REFERRAL_KEY);
-  } catch {
-    /* ignore */
-  }
-  if (typeof document !== "undefined") {
-    document.cookie = `${REFERRAL_KEY}=; path=/; max-age=0; SameSite=Lax`;
+  for (const key of [REFERRAL_KEY, LEGACY_REFERRAL_KEY]) {
+    try {
+      window.localStorage.removeItem(key);
+    } catch {
+      /* ignore */
+    }
+    if (typeof document !== "undefined") {
+      document.cookie = `${key}=; path=/; max-age=0; SameSite=Lax`;
+    }
   }
 }
+
