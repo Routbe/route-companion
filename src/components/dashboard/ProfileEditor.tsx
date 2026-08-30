@@ -91,7 +91,16 @@ import {
   normalizeHandle,
   type ProfileBlock,
   type ProfileRecord,
+  themeOf,
 } from "@/lib/profile";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { AvatarFramePicker } from "@/components/studio/AvatarFramePicker";
+import { avatarFrameLabel } from "@/lib/avatar-frames";
 import { ProfileView } from "@/components/profile/ProfileView";
 import { VerificationPanel } from "@/components/dashboard/VerificationPanel";
 import { DonationPanel } from "@/components/dashboard/DonationPanel";

@@ -69,6 +69,50 @@ export async function applyStripeEvent(event: StripeEvent): Promise<string> {
   // Makersdonaties lopen buiten de verificatiebetalingen om.
   const meta = metadataOf(object);
 
+  // Pro-tier of Root-subdomein add-on gekocht via Checkout: metadata bepaalt
+  // welk recht wordt toegekend. Alleen een bevestigde betaling telt.
+  const productKind = (meta["product"] ?? meta["kind"] ?? "").toLowerCase();
+  if (
+    meta["user_id"] &&
+    (productKind === "root_subdomain" ||
+      productKind === "root_subdomain_addon" ||
+      productKind === "root_lifetime" ||
+      productKind === "pro_tier")
+  ) {
+    const paid =
+      event.type === "payment_intent.succeeded" ||
+      event.type === "checkout.session.async_payment_succeeded" ||
+      (event.type === "checkout.session.completed" &&
+        ["paid", "no_payment_required"].includes(stringOf(object, "payment_status") ?? "paid"));
+    if (!paid) return `${productKind} awaiting payment`;
+
+    const userId = meta["user_id"];
+    const isRoot = productKind !== "pro_tier";
+    const { sql } = await import("./neon");
+    await sql`
+      update public.profiles
+         set is_paid = true,
+             verified = true,
+             verified_at = coalesce(verified_at, now()),
+             subdomain_enabled = true,
+             subdomain_tier = case
+               when ${isRoot} then 'root_lifetime'
+               when subdomain_tier = 'root_lifetime' then subdomain_tier
+               else 'pro' end,
+             updated_at = now()
+       where id = ${userId}
+    `;
+
+    if (isRoot) {
+      // Zet root_subdomain_status op pending_dns en verstuurt Brevo #2 (admin)
+      // en #3 (lid) via de bestaande claimketen.
+      const { claimRootSubdomainFor } = await import("./subdomain.server");
+      const claim = await claimRootSubdomainFor(userId);
+      return `root subdomain ${claim.status} (${claim.subdomain})`;
+    }
+    return "pro tier activated";
+  }
+
   // SecureShield-opwaarderingen: alleen bijschrijven bij een geslaagde betaling.
   if (meta["kind"] === "wallet_topup" && meta["user_id"]) {
     const succeeded =
