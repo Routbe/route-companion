@@ -100,6 +100,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { AvatarFramePicker } from "@/components/studio/AvatarFramePicker";
+import { FaviconUploader } from "@/components/studio/FaviconUploader";
+import { VisitEffectPicker } from "@/components/studio/VisitEffectPicker";
 import { avatarFrameLabel } from "@/lib/avatar-frames";
 import { ProfileView } from "@/components/profile/ProfileView";
 import { VerificationPanel } from "@/components/dashboard/VerificationPanel";
@@ -1016,19 +1018,7 @@ export function ProfileEditor() {
 
                   <div className="space-y-2 border-t border-border pt-4">
                     <label className="input-label">Favicon (optioneel)</label>
-                    <FileUploadInput
-                      type="image"
-                      value={faviconUrl}
-                      onValueChange={setFaviconUrl}
-                    />
-                    {faviconUrl && (
-                      <Button variant="ghost" size="sm" onClick={() => setFaviconUrl("")}>
-                        Remove
-                      </Button>
-                    )}
-                    <p className="text-[11px] text-muted-foreground">
-                      Standaard gebruikt je publieke pagina je avatar als browsericoon.
-                    </p>
+                    <FaviconUploader value={faviconUrl} onChange={setFaviconUrl} />
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -1213,7 +1203,11 @@ export function ProfileEditor() {
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="space-y-4 pb-5">
-                  <p className="input-label">Achtergrondstijl</p>
+                  <VisitEffectPicker
+                    value={prefs.visitEffect}
+                    onChange={(id) => setPref("visitEffect", id)}
+                  />
+                  <p className="input-label pt-2">Achtergrondstijl</p>
                   <div className="flex flex-wrap gap-2">
                     {BACKGROUND_OPTIONS.map((o) => (
                       <button
@@ -1408,7 +1402,7 @@ export function ProfileEditor() {
                 <div className="h-px bg-border" />
                 <CustomDomainPanel />
                 <div className="h-px bg-border" />
-                <VerifiedBadgeCard handle={handle || null} />
+                <VerifiedBadgeCard verified={verified} handle={handle || null} />
               </section>
 
               <SocialSharingCard
@@ -1708,8 +1702,8 @@ export function ProfileEditor() {
               </div>
             </div>
           ) : (
-            /* Laptop: metalen bezel met webcamstip, hinge en breder toetsenborddek */
-            <div className="mx-auto w-full max-w-[520px] transition-all duration-300">
+            /* Laptop: metalen bezel met webcamstip, hinge en 3D-toetsenborddek */
+            <div className="mx-auto w-full max-w-[520px] px-8 transition-all duration-300">
               {/* Scherm */}
               <div className="relative rounded-t-2xl border border-zinc-700/80 bg-zinc-900 p-2.5 pt-4 shadow-2xl shadow-black/60">
                 <span className="absolute left-1/2 top-1.5 h-1 w-1 -translate-x-1/2 rounded-full bg-zinc-500" aria-hidden />
@@ -1720,18 +1714,31 @@ export function ProfileEditor() {
                   </div>
                 </div>
               </div>
-              {/* Hinge */}
-              <div className="mx-auto h-1 w-[102%] -translate-x-[1%] rounded-sm bg-zinc-700" />
-              {/* Onderdek: breder dan het scherm, met verzonken toetsenbordtray en trackpad */}
-              <div className="relative -mx-[4%] w-[108%] rounded-b-2xl border border-t-0 border-zinc-700/80 bg-gradient-to-b from-zinc-800 to-zinc-900 px-4 pb-2 pt-2 shadow-2xl shadow-black/60">
-                <div className="rounded-md bg-zinc-950/50 p-1.5">
-                  <div className="grid grid-cols-12 gap-1 opacity-40">
-                    {Array.from({ length: 48 }).map((_, i) => (
-                      <span key={i} className="h-1.5 rounded-[2px] bg-zinc-400" />
+              {/* Hinge: donkere metalen balk tussen scherm en dek */}
+              <div className="mx-auto h-2 w-[98%] rounded-b-sm border-t border-zinc-800 bg-zinc-950" aria-hidden />
+              {/* Onderdek: echt 3D-perspectief — bovenste rij wijkt naar achteren,
+                  spacebar en trackpad komen naar voren */}
+              <div className="[perspective:1000px]">
+                <div
+                  className="relative mx-auto w-[104%] -translate-x-[2%] origin-top rounded-b-2xl border border-t-0 border-zinc-700/80 bg-gradient-to-b from-zinc-800 to-zinc-900 px-4 pb-3 pt-2 shadow-2xl shadow-black/60 [transform:rotateX(32deg)] [transform-style:preserve-3d]"
+                >
+                  <div className="space-y-1 rounded-md bg-zinc-950/50 p-1.5">
+                    {Array.from({ length: 4 }).map((_, row) => (
+                      <div key={row} className="grid grid-cols-12 gap-1">
+                        {Array.from({ length: 12 }).map((_, col) => (
+                          <span
+                            key={col}
+                            className="h-2.5 rounded-[2px] border border-zinc-700/50 bg-zinc-800/80"
+                          />
+                        ))}
+                      </div>
                     ))}
+                    {/* Spacebar */}
+                    <div className="mx-auto h-2.5 w-1/2 rounded-[2px] border border-zinc-700/50 bg-zinc-800/80" />
                   </div>
+                  {/* Trackpad */}
+                  <div className="mx-auto mt-2 h-3.5 w-1/3 rounded-sm border border-zinc-700/50 bg-zinc-800/40" />
                 </div>
-                <div className="mx-auto mt-1.5 h-3 w-24 rounded-[3px] border border-zinc-600/70 bg-zinc-800/70" />
               </div>
               <div className="mx-auto h-1 w-[70%] rounded-b-full bg-black/40 blur-[2px]" aria-hidden />
             </div>

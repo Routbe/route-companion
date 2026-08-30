@@ -156,6 +156,9 @@ function RootComponent() {
 
   useEffect(() => {
     void import("@/lib/pwa").then((m) => m.setupPwa());
+    // `?ref=` op elke entree onthouden (30 dagen), zodat de attributie
+    // overleeft terwijl de bezoeker rondkijkt vóór registratie.
+    void import("@/lib/referral").then((m) => m.captureReferralFromUrl());
   }, []);
 
   return (

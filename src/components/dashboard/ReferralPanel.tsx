@@ -1,22 +1,27 @@
 import { useEffect, useState } from "react";
 import { Check, Copy, Gift, Share2, Users } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { db } from "@/lib/db/client";
-import { referralUrl } from "@/lib/referral";
+import { inviteMessage, inviteUrl } from "@/lib/invite";
 import { getReferralStats } from "@/lib/referral.functions";
 import { INVITE_TIERS, nextMilestone, type ReferralReward } from "@/lib/referral-rewards";
 import { useI18n } from "@/lib/i18n";
 
 /**
- * Referral hub — de persoonlijke `rout.be/r/<handle>`-link, het aantal
- * aangesloten vrienden en de mijlpalen die daar korting of een badge aan
+ * Referral hub — de persoonlijke uitnodigingslink (`rout.be/signup?ref=…`), het
+ * aantal aangesloten vrienden en de mijlpalen die daar korting of een badge aan
  * koppelen (3 = 50%, 3 geverifieerd = gratis, 10 = gratis + De Influencer).
+ *
+ * Gratis leden delen hun alias-namespace (`ref=u_<alias>`), geverifieerde
+ * Pro-leden hun schone handle (`ref=<handle>`).
  */
 export function ReferralPanel() {
   const { user } = useAuth();
   const { t } = useI18n();
   const [handle, setHandle] = useState<string | null>(null);
+  const [verified, setVerified] = useState(false);
   const [invited, setInvited] = useState(0);
   const [verifiedInvites, setVerifiedInvites] = useState(0);
   const [reward, setReward] = useState<ReferralReward | null>(null);
@@ -28,13 +33,14 @@ export function ReferralPanel() {
     let cancelled = false;
     void db
       .from("profiles")
-      .select("username" as "*")
+      .select("username, verified, status" as "*")
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => {
         if (cancelled || !data) return;
         const row = data as unknown as Record<string, unknown>;
         setHandle(typeof row["username"] === "string" ? row["username"] : null);
+        setVerified(Boolean(row["verified"]));
       });
 
     void loadStats()
@@ -54,24 +60,26 @@ export function ReferralPanel() {
   }, [user, loadStats]);
 
   if (!handle) return null;
-  const link = referralUrl(handle);
+  const link = inviteUrl(handle, verified);
+  const message = inviteMessage(link);
   const milestone = nextMilestone({ invited, verifiedInvites });
   const progress = milestone ? Math.min(100, Math.round((invited / milestone.goal) * 100)) : 100;
 
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(link);
+      await navigator.clipboard.writeText(message);
       setCopied(true);
+      toast.success("Uitnodigingstekst & link gekopieerd!", { description: link });
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
-      /* clipboard geblokkeerd — het veld blijft selecteerbaar */
+      toast.error("Kopiëren mislukt — selecteer de link handmatig.");
     }
   };
 
   const share = async () => {
     if (typeof navigator !== "undefined" && "share" in navigator) {
       try {
-        await navigator.share({ url: link, title: t("referral.shareTitle") });
+        await navigator.share({ url: link, text: message, title: t("referral.shareTitle") });
         return;
       } catch {
         /* geannuleerd — val terug op kopiëren */
@@ -79,6 +87,7 @@ export function ReferralPanel() {
     }
     void copy();
   };
+
 
   return (
     <section className="space-y-3 rounded-2xl border border-border bg-card p-4 sm:p-5">

@@ -21,6 +21,7 @@ import {
   BIO_LOCALE_LABEL,
   type BioLocale,
 } from "@/lib/profile-display";
+import { runVisitEffect } from "@/lib/visit-effects";
 import { AvatarFrameWrapper } from "@/components/profile/AvatarFrameWrapper";
 import { downloadVCard } from "@/lib/vcard";
 
@@ -85,6 +86,14 @@ export function ProfileView({
   const memberSince = monthYear(profile.created_at ?? null, locale || "nl");
 
   useProfileFavicon(profile.favicon_url ?? profile.avatar_url);
+
+  // Entree-effect: exact één keer bij het betreden van het profiel, en nooit
+  // wanneer het besturingssysteem minder beweging vraagt.
+  useEffect(() => {
+    if (prefs.visitEffect === "none") return;
+    const stop = runVisitEffect(prefs.visitEffect);
+    return stop;
+  }, [prefs.visitEffect]);
 
   return (
     <main
@@ -156,10 +165,21 @@ export function ProfileView({
           verified={Boolean(profile.verified)}
           earlyBeliever={earlyBeliever}
         />
-        <p className="mt-1 break-all text-center text-sm" style={{ color: t.muted }}>
-          {/* Free members show their clean community URL; verified members the handle. */}
-          {free ? `rout.be/u/${profile.username}` : `@${profile.username}`}
-        </p>
+        {/* Gratis leden tonen hun alias-namespace, Pro-leden hun schone handle.
+            De subtitel is een subtiele link naar het live profiel. */}
+        <a
+          href={
+            free
+              ? `https://rout.be/u/${profile.username}`
+              : `https://rout.be/${profile.username}`
+          }
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-1 break-all text-center text-sm underline-offset-4 transition-opacity hover:underline hover:opacity-80"
+          style={{ color: t.muted }}
+        >
+          {free ? `rout.be/u/${profile.username}` : `rout.be/${profile.username}`}
+        </a>
         {prefs.statusLine && (
           <p className="mt-1 text-center text-xs font-medium" style={{ color: t.text }}>
             {prefs.statusLine}
@@ -242,11 +262,14 @@ export function ProfileView({
 
         <BadgeShowcase userId={profile.id} theme={t} />
 
-        {/* Geverifieerde socials met gecachte volgeraantallen (0 externe calls). */}
+        {/* Geverifieerde socials met gecachte volgeraantallen (0 externe calls).
+            Mode 1 = icoon + gebruikersnaam met vinkje ernaast; mode 2 = alleen
+            het icoon met een micro-vinkje over de rechterbovenhoek. */}
         {(profile.social_links ?? []).length > 0 && (
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
             {(profile.social_links ?? []).map((link) => {
               const followers = formatFollowers(link.followerCount);
+              const username = (link as { username?: string | null }).username ?? null;
               return (
                 <a
                   key={link.platform}
@@ -257,14 +280,28 @@ export function ProfileView({
                   className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium transition-opacity hover:opacity-80"
                   style={{ border: `1px solid ${t.border}`, color: t.muted }}
                 >
-                  <SocialPlatformIcon source={link.url} className="h-3.5 w-3.5 text-current" />
-                  <BadgeCheck className="h-3 w-3 text-emerald-500" aria-hidden />
+                  {username ? (
+                    <>
+                      <SocialPlatformIcon source={link.url} className="h-3.5 w-3.5 text-current" />
+                      <span>@{username.replace(/^@/, "")}</span>
+                      <BadgeCheck className="h-3 w-3 text-emerald-500" aria-hidden />
+                    </>
+                  ) : (
+                    <span className="relative inline-flex">
+                      <SocialPlatformIcon source={link.url} className="h-3.5 w-3.5 text-current" />
+                      <BadgeCheck
+                        className="absolute -right-1 -top-1 z-10 h-2.5 w-2.5 text-emerald-500"
+                        aria-hidden
+                      />
+                    </span>
+                  )}
                   {followers && <span>{followers} volgers</span>}
                 </a>
               );
             })}
           </div>
         )}
+
 
         <div className={`mt-8 grid w-full gap-3 ${wide ? "sm:grid-cols-2" : "grid-cols-1"}`}>
           {blocks.length === 0 && (
