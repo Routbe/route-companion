@@ -7,7 +7,9 @@
  * cookie, and it is only consumed once the new member is actually signed in.
  */
 
-export const REFERRAL_KEY = "rout_ref";
+export const REFERRAL_KEY = "rout_invited_by";
+/** Oudere sleutel — blijft leesbaar zodat lopende uitnodigingen niet sneuvelen. */
+export const LEGACY_REFERRAL_KEY = "rout_ref";
 export const REFERRAL_TTL_DAYS = 30;
 
 export function referralPath(username: string): string {
