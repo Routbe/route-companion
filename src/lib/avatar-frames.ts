@@ -274,3 +274,72 @@ export function avatarFrameStyle(
       return { padding: 0, borderRadius: 999 };
   }
 }
+
+
+// ---------------------------------------------------------------------------
+// Fallback voor trage toestellen
+// ---------------------------------------------------------------------------
+
+/** Basiskleur per kader voor de goedkope terugvalweergave. */
+const FALLBACK_ACCENT: Partial<Record<AvatarFrame, string>> = {
+  laurel_gold: "#c9a84c",
+  cyber_neon: "#22d3ee",
+  emerald_ivy: "#22c55e",
+  nordic_frost: "#7dd3fc",
+  royal_crown: "#b45309",
+  steampunk_gear: "#b08d57",
+  cosmic_halo: "#818cf8",
+  fire_glow: "#f97316",
+  glass_crystal: "#e2e8f0",
+  matrix_code: "#22c55e",
+  vintage_wood: "#92400e",
+  sunset_gold: "#fb923c",
+  dark_void: "#334155",
+  diamond_edge: "#a5b4fc",
+  gold_chain: "#f4e2b0",
+  blood_moon: "#b91c1c",
+  cyber_hex: "#3b82f6",
+  floral_bloom: "#f472b6",
+  chrome_steel: "#cbd5e1",
+  pixel_retro: "#0f172a",
+  hologram: "#38bdf8",
+  vampire_goth: "#7f1d1d",
+};
+
+/**
+ * Goedkope variant van een kader: één effen rand, geen gradients, gloed of
+ * animatie. Wordt gebruikt op trage toestellen, bij "verminderde beweging" en
+ * bij databesparing, zodat een publiek profiel daar even snel blijft renderen.
+ */
+export function avatarFrameFallbackStyle(
+  frame: AvatarFrame,
+  theme: FrameTheme,
+): Record<string, string | number> {
+  if (frame === "none") return avatarFrameStyle(frame, theme);
+  const color = FALLBACK_ACCENT[frame] ?? theme.accent ?? theme.border;
+  return {
+    padding: 4,
+    borderRadius: 999,
+    background: color,
+    border: `1px solid ${theme.border}`,
+  };
+}
+
+/**
+ * Bepaalt of de lichte kaderweergave gebruikt moet worden. Server-side (SSR)
+ * kiezen we altijd de volledige versie zodat de HTML gelijk blijft; de client
+ * schakelt na hydratatie terug wanneer het toestel dat vraagt.
+ */
+export function prefersLightFrames(): boolean {
+  if (typeof window === "undefined" || typeof navigator === "undefined") return false;
+  const nav = navigator as Navigator & {
+    deviceMemory?: number;
+    connection?: { saveData?: boolean; effectiveType?: string };
+  };
+  if (nav.connection?.saveData) return true;
+  if (nav.connection?.effectiveType && /^(slow-)?2g$/.test(nav.connection.effectiveType)) return true;
+  if (typeof nav.hardwareConcurrency === "number" && nav.hardwareConcurrency > 0 && nav.hardwareConcurrency <= 2)
+    return true;
+  if (typeof nav.deviceMemory === "number" && nav.deviceMemory > 0 && nav.deviceMemory <= 2) return true;
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+}

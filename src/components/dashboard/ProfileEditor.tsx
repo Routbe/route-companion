@@ -595,8 +595,10 @@ export function ProfileEditor() {
 
   return (
     <div className={cn("flex flex-1 flex-col space-y-4", showSaveBar && "pb-16 lg:pb-4")}>
-      {/* Namespace banner — crystal clear which tier is active */}
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5">
+      {/* Compacte studiokop: tier-balk en tabs blijven bij het scrollen staan en
+          nemen samen nauwelijks hoogte in, zodat de live preview hoger begint. */}
+      <div className="sticky top-14 z-20 -mx-1 space-y-1.5 bg-background/95 px-1 pb-1.5 pt-1 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card px-2.5 py-1.5">
         <span
           className={cn(
             "rounded-full px-2 py-0.5 text-[11px] font-medium",
@@ -605,7 +607,7 @@ export function ProfileEditor() {
         >
           {verified ? "Pro tier" : "Free tier"}
         </span>
-        <span className="min-w-0 break-all font-mono text-[13px] font-medium">
+        <span className="min-w-0 break-all font-mono text-[12px] font-medium">
           {host}
           {styledProfilePath(normalized || "handle", urlStyle)}
         </span>
@@ -614,7 +616,7 @@ export function ProfileEditor() {
             href={publicPath}
             target="_blank"
             rel="noopener noreferrer"
-            className="ml-auto text-xs font-medium underline"
+            className="ml-auto text-[11px] font-medium underline"
           >
             View live →
           </a>
@@ -625,7 +627,7 @@ export function ProfileEditor() {
       <div
         role="tablist"
         aria-label="Studio"
-        className="flex w-full gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex w-full gap-0.5 overflow-x-auto rounded-lg border border-border bg-card p-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {visibleTabs.map(({ id, label, icon: Icon }) => (
           <button
@@ -635,16 +637,17 @@ export function ProfileEditor() {
             aria-selected={tab === id}
             onClick={() => setTab(id)}
             className={cn(
-              "flex h-10 shrink-0 items-center gap-1.5 rounded-lg px-3 text-xs font-medium transition-colors",
+              "flex h-8 shrink-0 items-center gap-1.5 rounded-md px-2.5 text-[11px] font-medium transition-colors",
               tab === id
                 ? "bg-foreground text-background"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
-            <Icon className="h-4 w-4" aria-hidden />
+            <Icon className="h-3.5 w-3.5" aria-hidden />
             <span className="whitespace-nowrap">{label}</span>
           </button>
         ))}
+      </div>
       </div>
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
@@ -1649,7 +1652,7 @@ export function ProfileEditor() {
 
         
         {/* Live preview — desktop: pinned next to the editor, altijd ónder de vaste header (z-10 < z-50) */}
-        <aside className="z-10 hidden lg:sticky lg:top-24 lg:block lg:h-[calc(100vh-7rem)] lg:overflow-y-auto lg:overscroll-contain">
+        <aside className="z-10 hidden lg:sticky lg:top-32 lg:block lg:h-[calc(100vh-9rem)] lg:overflow-y-auto lg:overscroll-contain">
 
           <div className="mb-2 flex items-center justify-between gap-2">
             <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">

@@ -81,6 +81,7 @@ import { Route as ApiPublicAuthProviderRouteImport } from './routes/api_.public.
 import { Route as ApiPublicAuthMagicLinkRouteImport } from './routes/api_.public.auth.magic-link'
 import { Route as ApiPublicBadgeHandleRouteImport } from './routes/api_.public.badge.$handle'
 import { Route as ApiPublicCronCheckDnsRouteImport } from './routes/api_.public.cron.check-dns'
+import { Route as ApiPublicCronScanTransfersRouteImport } from './routes/api_.public.cron.scan-transfers'
 import { Route as ApiPublicCronSecureshieldBillingRouteImport } from './routes/api_.public.cron.secureshield-billing'
 import { Route as ApiPublicCronSyncSocialsRouteImport } from './routes/api_.public.cron.sync-socials'
 import { Route as ApiPublicOgHandleRouteImport } from './routes/api_.public.og.$handle'
@@ -453,6 +454,12 @@ const ApiPublicCronCheckDnsRoute = ApiPublicCronCheckDnsRouteImport.update({
   path: '/api/public/cron/check-dns',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCronScanTransfersRoute =
+  ApiPublicCronScanTransfersRouteImport.update({
+    id: '/api_/public/cron/scan-transfers',
+    path: '/api/public/cron/scan-transfers',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronSecureshieldBillingRoute =
   ApiPublicCronSecureshieldBillingRouteImport.update({
     id: '/api_/public/cron/secureshield-billing',
@@ -555,6 +562,7 @@ export interface FileRoutesByFullPath {
   '/api/public/auth/magic-link': typeof ApiPublicAuthMagicLinkRoute
   '/api/public/badge/$handle': typeof ApiPublicBadgeHandleRoute
   '/api/public/cron/check-dns': typeof ApiPublicCronCheckDnsRoute
+  '/api/public/cron/scan-transfers': typeof ApiPublicCronScanTransfersRoute
   '/api/public/cron/secureshield-billing': typeof ApiPublicCronSecureshieldBillingRoute
   '/api/public/cron/sync-socials': typeof ApiPublicCronSyncSocialsRoute
   '/api/public/og/$handle': typeof ApiPublicOgHandleRoute
@@ -633,6 +641,7 @@ export interface FileRoutesByTo {
   '/api/public/auth/magic-link': typeof ApiPublicAuthMagicLinkRoute
   '/api/public/badge/$handle': typeof ApiPublicBadgeHandleRoute
   '/api/public/cron/check-dns': typeof ApiPublicCronCheckDnsRoute
+  '/api/public/cron/scan-transfers': typeof ApiPublicCronScanTransfersRoute
   '/api/public/cron/secureshield-billing': typeof ApiPublicCronSecureshieldBillingRoute
   '/api/public/cron/sync-socials': typeof ApiPublicCronSyncSocialsRoute
   '/api/public/og/$handle': typeof ApiPublicOgHandleRoute
@@ -713,6 +722,7 @@ export interface FileRoutesById {
   '/api_/public/auth/magic-link': typeof ApiPublicAuthMagicLinkRoute
   '/api_/public/badge/$handle': typeof ApiPublicBadgeHandleRoute
   '/api_/public/cron/check-dns': typeof ApiPublicCronCheckDnsRoute
+  '/api_/public/cron/scan-transfers': typeof ApiPublicCronScanTransfersRoute
   '/api_/public/cron/secureshield-billing': typeof ApiPublicCronSecureshieldBillingRoute
   '/api_/public/cron/sync-socials': typeof ApiPublicCronSyncSocialsRoute
   '/api_/public/og/$handle': typeof ApiPublicOgHandleRoute
@@ -793,6 +803,7 @@ export interface FileRouteTypes {
     | '/api/public/auth/magic-link'
     | '/api/public/badge/$handle'
     | '/api/public/cron/check-dns'
+    | '/api/public/cron/scan-transfers'
     | '/api/public/cron/secureshield-billing'
     | '/api/public/cron/sync-socials'
     | '/api/public/og/$handle'
@@ -871,6 +882,7 @@ export interface FileRouteTypes {
     | '/api/public/auth/magic-link'
     | '/api/public/badge/$handle'
     | '/api/public/cron/check-dns'
+    | '/api/public/cron/scan-transfers'
     | '/api/public/cron/secureshield-billing'
     | '/api/public/cron/sync-socials'
     | '/api/public/og/$handle'
@@ -950,6 +962,7 @@ export interface FileRouteTypes {
     | '/api_/public/auth/magic-link'
     | '/api_/public/badge/$handle'
     | '/api_/public/cron/check-dns'
+    | '/api_/public/cron/scan-transfers'
     | '/api_/public/cron/secureshield-billing'
     | '/api_/public/cron/sync-socials'
     | '/api_/public/og/$handle'
@@ -1007,6 +1020,7 @@ export interface RootRouteChildren {
   ApiPublicAuthMagicLinkRoute: typeof ApiPublicAuthMagicLinkRoute
   ApiPublicBadgeHandleRoute: typeof ApiPublicBadgeHandleRoute
   ApiPublicCronCheckDnsRoute: typeof ApiPublicCronCheckDnsRoute
+  ApiPublicCronScanTransfersRoute: typeof ApiPublicCronScanTransfersRoute
   ApiPublicCronSecureshieldBillingRoute: typeof ApiPublicCronSecureshieldBillingRoute
   ApiPublicCronSyncSocialsRoute: typeof ApiPublicCronSyncSocialsRoute
   ApiPublicOgHandleRoute: typeof ApiPublicOgHandleRoute
@@ -1519,6 +1533,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronCheckDnsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api_/public/cron/scan-transfers': {
+      id: '/api_/public/cron/scan-transfers'
+      path: '/api/public/cron/scan-transfers'
+      fullPath: '/api/public/cron/scan-transfers'
+      preLoaderRoute: typeof ApiPublicCronScanTransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api_/public/cron/secureshield-billing': {
       id: '/api_/public/cron/secureshield-billing'
       path: '/api/public/cron/secureshield-billing'
@@ -1745,6 +1766,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAuthMagicLinkRoute: ApiPublicAuthMagicLinkRoute,
   ApiPublicBadgeHandleRoute: ApiPublicBadgeHandleRoute,
   ApiPublicCronCheckDnsRoute: ApiPublicCronCheckDnsRoute,
+  ApiPublicCronScanTransfersRoute: ApiPublicCronScanTransfersRoute,
   ApiPublicCronSecureshieldBillingRoute: ApiPublicCronSecureshieldBillingRoute,
   ApiPublicCronSyncSocialsRoute: ApiPublicCronSyncSocialsRoute,
   ApiPublicOgHandleRoute: ApiPublicOgHandleRoute,
