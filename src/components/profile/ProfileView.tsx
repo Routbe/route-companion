@@ -21,6 +21,7 @@ import {
   BIO_LOCALE_LABEL,
   type BioLocale,
 } from "@/lib/profile-display";
+import { runVisitEffect } from "@/lib/visit-effects";
 import { AvatarFrameWrapper } from "@/components/profile/AvatarFrameWrapper";
 import { downloadVCard } from "@/lib/vcard";
 
