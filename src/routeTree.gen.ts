@@ -28,6 +28,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as QrRouteImport } from './routes/qr'
 import { Route as SelfHostingRouteImport } from './routes/self-hosting'
 import { Route as SignatureRouteImport } from './routes/signature'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SovereigntyRouteImport } from './routes/sovereignty'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as StudioRouteImport } from './routes/studio'
@@ -178,6 +179,11 @@ const SelfHostingRoute = SelfHostingRouteImport.update({
 const SignatureRoute = SignatureRouteImport.update({
   id: '/signature',
   path: '/signature',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SovereigntyRoute = SovereigntyRouteImport.update({
@@ -496,6 +502,7 @@ export interface FileRoutesByFullPath {
   '/qr': typeof QrRoute
   '/self-hosting': typeof SelfHostingRoute
   '/signature': typeof SignatureRoute
+  '/signup': typeof SignupRoute
   '/sovereignty': typeof SovereigntyRoute
   '/status': typeof StatusRoute
   '/studio': typeof StudioRoute
@@ -573,6 +580,7 @@ export interface FileRoutesByTo {
   '/qr': typeof QrRoute
   '/self-hosting': typeof SelfHostingRoute
   '/signature': typeof SignatureRoute
+  '/signup': typeof SignupRoute
   '/sovereignty': typeof SovereigntyRoute
   '/status': typeof StatusRoute
   '/studio': typeof StudioRoute
@@ -652,6 +660,7 @@ export interface FileRoutesById {
   '/qr': typeof QrRoute
   '/self-hosting': typeof SelfHostingRoute
   '/signature': typeof SignatureRoute
+  '/signup': typeof SignupRoute
   '/sovereignty': typeof SovereigntyRoute
   '/status': typeof StatusRoute
   '/studio': typeof StudioRoute
@@ -731,6 +740,7 @@ export interface FileRouteTypes {
     | '/qr'
     | '/self-hosting'
     | '/signature'
+    | '/signup'
     | '/sovereignty'
     | '/status'
     | '/studio'
@@ -808,6 +818,7 @@ export interface FileRouteTypes {
     | '/qr'
     | '/self-hosting'
     | '/signature'
+    | '/signup'
     | '/sovereignty'
     | '/status'
     | '/studio'
@@ -886,6 +897,7 @@ export interface FileRouteTypes {
     | '/qr'
     | '/self-hosting'
     | '/signature'
+    | '/signup'
     | '/sovereignty'
     | '/status'
     | '/studio'
@@ -965,6 +977,7 @@ export interface RootRouteChildren {
   QrRoute: typeof QrRoute
   SelfHostingRoute: typeof SelfHostingRoute
   SignatureRoute: typeof SignatureRoute
+  SignupRoute: typeof SignupRoute
   SovereigntyRoute: typeof SovereigntyRoute
   StatusRoute: typeof StatusRoute
   StudioRoute: typeof StudioRoute
@@ -1133,6 +1146,13 @@ declare module '@tanstack/react-router' {
       path: '/signature'
       fullPath: '/signature'
       preLoaderRoute: typeof SignatureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sovereignty': {
@@ -1695,6 +1715,7 @@ const rootRouteChildren: RootRouteChildren = {
   QrRoute: QrRoute,
   SelfHostingRoute: SelfHostingRoute,
   SignatureRoute: SignatureRoute,
+  SignupRoute: SignupRoute,
   SovereigntyRoute: SovereigntyRoute,
   StatusRoute: StatusRoute,
   StudioRoute: StudioRoute,

@@ -33,7 +33,7 @@ function SignupLanding() {
 
   useEffect(() => {
     captureReferralFromUrl();
-    void navigate({ to: "/auth", replace: true });
+    void navigate({ to: "/auth", search: { redirect: undefined }, replace: true });
   }, [navigate]);
 
   return (
