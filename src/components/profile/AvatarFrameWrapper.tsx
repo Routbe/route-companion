@@ -1,7 +1,9 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   avatarFrameDef,
+  avatarFrameFallbackStyle,
   avatarFrameStyle,
+  prefersLightFrames,
   type AvatarFrame,
   type AvatarFrameOverlay,
   type FrameTheme,
@@ -141,14 +143,22 @@ export function AvatarFrameWrapper({
   className?: string;
 }) {
   const def = avatarFrameDef(frame);
-  const style = avatarFrameStyle(frame, theme);
+  // SSR rendert altijd het volledige kader; na hydratatie schakelen trage
+  // toestellen (weinig cores/RAM, databesparing, verminderde beweging) over op
+  // een effen rand zonder gradients, gloed of animatie.
+  const [light, setLight] = useState(false);
+  useEffect(() => {
+    setLight(prefersLightFrames());
+  }, []);
+
+  const style = light ? avatarFrameFallbackStyle(frame, theme) : avatarFrameStyle(frame, theme);
   return (
     <div
       style={style}
-      className={`relative inline-flex shrink-0 ${def.animation ?? ""} ${className}`}
+      className={`relative inline-flex shrink-0 ${light ? "" : (def.animation ?? "")} ${className}`}
     >
       {children}
-      <FrameOverlay overlay={def.overlay ?? null} />
+      {!light && <FrameOverlay overlay={def.overlay ?? null} />}
     </div>
   );
 }
