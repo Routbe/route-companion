@@ -21,6 +21,10 @@ export {
   avatarFrameStyle,
 } from "./avatar-frames";
 import { normalizeAvatarFrame, type AvatarFrame } from "./avatar-frames";
+import { normalizeVisitEffect, type VisitEffect } from "./visit-effects";
+/** Bezoekers Special FX — definities leven in `@/lib/visit-effects`. */
+export type { VisitEffect } from "./visit-effects";
+export { VISIT_EFFECTS, runVisitEffect } from "./visit-effects";
 export type BannerStyle = "none" | "gradient" | "image";
 export type NameAccent = "classic" | "gold" | "neon" | "chrome";
 
@@ -58,6 +62,8 @@ export interface ProfileDisplayPrefs {
   bioFr: string | null;
   /** Toont de "Contact opslaan" (vCard) knop op het publieke profiel. */
   showVcardButton: boolean;
+  /** Entree-effect voor bezoekers (`none` = uit). */
+  visitEffect: VisitEffect;
 
 }
 
@@ -86,6 +92,7 @@ export const DEFAULT_DISPLAY_PREFS: ProfileDisplayPrefs = {
   bioEn: null,
   bioFr: null,
   showVcardButton: true,
+  visitEffect: "none",
 };
 
 export { AVATAR_FRAME_DEFS as AVATAR_FRAMES } from "./avatar-frames";
@@ -190,6 +197,7 @@ export function parseDisplayPrefs(raw: unknown): ProfileDisplayPrefs {
     bioEn: textOrNull(r["bioEn"], 500),
     bioFr: textOrNull(r["bioFr"], 500),
     showVcardButton: r["showVcardButton"] === undefined ? true : Boolean(r["showVcardButton"]),
+    visitEffect: normalizeVisitEffect(r["visitEffect"]),
   };
 }
 
