@@ -86,6 +86,14 @@ export function ProfileView({
 
   useProfileFavicon(profile.favicon_url ?? profile.avatar_url);
 
+  // Entree-effect: exact één keer bij het betreden van het profiel, en nooit
+  // wanneer het besturingssysteem minder beweging vraagt.
+  useEffect(() => {
+    if (prefs.visitEffect === "none") return;
+    const stop = runVisitEffect(prefs.visitEffect);
+    return stop;
+  }, [prefs.visitEffect]);
+
   return (
     <main
       className={`min-h-screen w-full px-4 pb-12 ${banner ? "pt-0" : "pt-12"}`}
