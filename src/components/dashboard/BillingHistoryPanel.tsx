@@ -27,8 +27,16 @@ function saveBase64Pdf(filename: string, base64: string) {
   const link = document.createElement("a");
   link.href = url;
   link.download = filename;
+  link.rel = "noopener";
+  // Firefox/Safari negeren een klik op een anker dat niet in het document staat,
+  // en het intrekken van de blob-URL mag pas nadat de download is gestart.
+  link.style.display = "none";
+  document.body.appendChild(link);
   link.click();
-  URL.revokeObjectURL(url);
+  window.setTimeout(() => {
+    link.remove();
+    URL.revokeObjectURL(url);
+  }, 2000);
 }
 
 /** Betaalgeschiedenis met herdownload van elke eerder verstuurde factuur. */
@@ -63,12 +71,13 @@ export function BillingHistoryPanel() {
     setBusyId(paymentId);
     try {
       const res = await download({ data: { paymentId } });
-      if (!res.ok) {
+      if (!res.ok || !res.base64) {
         toast.error("Deze factuur is niet meer beschikbaar.");
         return;
       }
       saveBase64Pdf(res.filename, res.base64);
-    } catch {
+    } catch (err) {
+      console.error("[facturen] download mislukt", err);
       toast.error("Downloaden lukte niet. Probeer het over een moment opnieuw.");
     } finally {
       setBusyId(null);
