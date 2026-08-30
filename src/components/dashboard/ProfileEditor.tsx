@@ -1203,7 +1203,11 @@ export function ProfileEditor() {
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="space-y-4 pb-5">
-                  <p className="input-label">Achtergrondstijl</p>
+                  <VisitEffectPicker
+                    value={prefs.visitEffect}
+                    onChange={(id) => setPref("visitEffect", id)}
+                  />
+                  <p className="input-label pt-2">Achtergrondstijl</p>
                   <div className="flex flex-wrap gap-2">
                     {BACKGROUND_OPTIONS.map((o) => (
                       <button
